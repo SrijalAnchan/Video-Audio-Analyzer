@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .content-container {
+            display: flex;
+            gap: 30px;
+        }
+        .timestamps {
+            width: 50%;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .video-container {
+            width: 30%;
+            position: relative;
+            overflow: hidden;
+        }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto my-8">
+        <h1 class="text-3xl font-bold mb-4">Video Analyzer</h1>
+
+        <form action="{{ url_for('index') }}" method="POST" enctype="multipart/form-data" class="mb-8">
+            <div class="mb-4">
+                <label for="video_file" class="block font-medium mb-2">Upload a video file:</label>
+                <input type="file" id="video_file" name="video_file" class="border border-gray-400 px-4 py-2 rounded-md w-full" required>
+            </div>
+            <button type="submit" class="bg-blue-500 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-600">Analyze Video</button>
+        </form>
+
+        {% if issues %}
+        <div class="content-container">
+            <!-- Timestamps List -->
+            <div class="timestamps">
+                <h2 class="text-2xl font-bold mb-4">Timestamps</h2>
+                <ul>
+                    {% for issue in issues %}
+                    <li class="mb-2">
+                        <a href="#" onclick="jumpToFrame('{{ issue.timestamp * 1000 }}')" class="text-blue-500 hover:underline">
+                            {{ issue.timestamp | round(2) }} seconds - {{ issue.type }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Video Player -->
+            <div class="video-container">
+                <video id="video-player" controls width="100%" height="auto" muted>
+                    <source src="{{ url_for('static', filename='uploads/' + video_file) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+
+        <!-- Analysis Summary -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold mb-4">Video Analysis Summary</h2>
+            <p><strong>Frame Drops:</strong> {{ issue_count['frame_drop'] }}</p>
+            <p><strong>Blank Frames:</strong> {{ issue_count['blank_frame'] }}</p>
+            <p><strong>Blurry Frames:</strong> {{ issue_count['blurry_frame'] }}</p>
+        </div>
+
+        <!-- PDF Report -->
+        {% if pdf_path %}
+        <div class="mt-4">
+            <h2 class="text-2xl font-bold mb-4">PDF Report</h2>
+            <a href="{{ url_for('static', filename='uploads/report.pdf') }}" class="bg-green-500 text-white font-medium py-2 px-4 rounded-md hover:bg-green-600">Download PDF Report</a>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    <script>
+        function jumpToFrame(timestamp) {
+            const videoPlayer = document.getElementById('video-player');
+            videoPlayer.currentTime = timestamp / 1000;
+            videoPlayer.pause();  // Pause the video to display the exact frame
+        }
+    </script>
+</body>
+</html>
