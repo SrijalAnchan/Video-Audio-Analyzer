@@ -28,7 +28,7 @@ This is a Flask web application designed to analyze video files for common issue
 #### Installation
 1. Clone this repository:
    ```bash
-   git clone https://github.com/EntertainmentTechnologists/QualityOfVideo_Srijal.git
+   git clone https://github.com/SrijalAnchan/Video-Audio-Analyzer.git
    cd video-audio-analysis-app
    ```
 
